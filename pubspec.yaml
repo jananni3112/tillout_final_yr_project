@@ -34,6 +34,7 @@ dependencies:
   firebase_core: ^1.14.1
   firebase_auth: ^3.3.14
   firebase_database: ^9.0.11
+  flutter_spinkit: ^5.1.0
   flutter:
     sdk: flutter
 
@@ -46,6 +47,12 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
+  flutter_native_splash: ^2.1.6
+
+flutter_native_splash:
+  color: "#ffffff"
+  image: assets/images/launch.png
+  android: true
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your
@@ -66,7 +73,6 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/images/launching screen.png
     - assets/images/sign.png
     - assets/images/history.png
     - assets/images/sbox.JPG
