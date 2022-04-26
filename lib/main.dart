@@ -19,7 +19,6 @@ Future<void> main()  async {
 }
 
 class MyApp extends StatelessWidget {
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -30,6 +29,7 @@ class MyApp extends StatelessWidget {
   }
 }
 class process extends StatefulWidget {
+
   const process({Key? key}) : super(key: key);
 
   @override
@@ -37,9 +37,11 @@ class process extends StatefulWidget {
 }
 
 class _processState extends State<process> {
+  bool state = true;
   void initState() {
     super.initState();
     FirebaseAuth.instance.authStateChanges().listen((user) async {
+      print(user);
       if (user == null) {
         Navigator.push(context, MaterialPageRoute(
             builder: (context) => SignScreen1()));
@@ -90,14 +92,14 @@ class _SignScreen1State extends State<SignScreen1> {
   String out = " ";
   bool state =false;
   TextEditingController _emailtext = TextEditingController();
-  Future<void> signin() async{
+  Future<void> signin(String email,String password) async{
     setState(() {
       state = true;
     });
     try {
       await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: _emailtext.text.trim(),
-          password: _passtext.text.trim()).then((UserCredential user) async {
+          email: email.trim(),
+          password: password.trim()).then((UserCredential user) async {
         if( user != null) {
           var var1 = user.user?.uid;
           DatabaseReference ref1 = FirebaseDatabase.instance.ref(
@@ -128,129 +130,133 @@ class _SignScreen1State extends State<SignScreen1> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        resizeToAvoidBottomInset: false,
-        body : !state?Container(
-          decoration: BoxDecoration(
-              image : DecorationImage(
-                image: AssetImage("assets/images/sign.png"),
-                fit: BoxFit.fill,
-              )
-          ),
-          child: Column(
-            children: [
-              Padding(padding: EdgeInsets.all(130.0)),
-              Container(
-                width: MediaQuery.of(context).size.width * 1,
-                height: MediaQuery.of(context).size.height * 0.05,
-                child: Container(
-                  child: Text("Sign In",
-                    style: TextStyle(fontSize: 30,fontWeight: FontWeight.w700),
-                    textAlign: TextAlign.center,
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: Scaffold(
+          resizeToAvoidBottomInset: false,
+          body : !state?Container(
+            decoration: BoxDecoration(
+                image : DecorationImage(
+                  image: AssetImage("assets/images/sign.png"),
+                  fit: BoxFit.fill,
+                )
+            ),
+            child: Column(
+              children: [
+                Padding(padding: EdgeInsets.all(130.0)),
+                Container(
+                  width: MediaQuery.of(context).size.width * 1,
+                  height: MediaQuery.of(context).size.height * 0.05,
+                  child: Container(
+                    child: Text("Sign In",
+                      style: TextStyle(fontSize: 30,fontWeight: FontWeight.w700),
+                      textAlign: TextAlign.center,
+                    ),
                   ),
                 ),
-              ),
-              Padding(padding: EdgeInsets.all(20.0)),
-              Container(
-                  width: MediaQuery.of(context).size.width * 0.85,
-                  height: MediaQuery.of(context).size.height * 0.05,
-                  child: TextField(
-                    controller:_emailtext,
-                    decoration: InputDecoration(
-                        hintText: "Email Adderess",
-                        hintStyle: TextStyle(fontSize: 23,color: Colors.black)
-                    ),
-                  )
-              ),
-              Padding(padding: EdgeInsets.all(20.0)),
-              Container(
-                  width: MediaQuery.of(context).size.width * 0.85,
-                  height: MediaQuery.of(context).size.height * 0.05,
-                  child: TextField(
-                    controller:_passtext,
-                    obscureText: _vis,
-                    maxLength: 10,
-                    decoration: InputDecoration(
-                        hintText: "Password",
-                        hintStyle: TextStyle(fontSize: 23,color: Colors.black),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                              _vis ? Icons.visibility_off : Icons.visibility
-                          ),
-                          onPressed: (){
-                            setState(() {
-                              _vis = !_vis;
-                            });
-                          },
+                Padding(padding: EdgeInsets.all(20.0)),
+                Container(
+                    width: MediaQuery.of(context).size.width * 0.85,
+                    height: MediaQuery.of(context).size.height * 0.05,
+                    child: TextField(
+                      controller:_emailtext,
+                      decoration: InputDecoration(
+                          hintText: "Email Adderess",
+                          hintStyle: TextStyle(fontSize: 23,color: Colors.black)
+                      ),
+                    )
+                ),
+                Padding(padding: EdgeInsets.all(20.0)),
+                Container(
+                    width: MediaQuery.of(context).size.width * 0.85,
+                    height: MediaQuery.of(context).size.height * 0.05,
+                    child: TextField(
+                      controller:_passtext,
+                      obscureText: _vis,
+                      maxLength: 10,
+                      decoration: InputDecoration(
+                          hintText: "Password",
+                          hintStyle: TextStyle(fontSize: 23,color: Colors.black),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                                _vis ? Icons.visibility_off : Icons.visibility
+                            ),
+                            onPressed: (){
+                              setState(() {
+                                _vis = !_vis;
+                              });
+                            },
+                          )
+                      ),
+                    )
+                ),
+                Container(
+                    width: MediaQuery.of(context).size.width * 0.85,
+                    height: MediaQuery.of(context).size.height * 0.05,
+                    child: Row(
+                      children: [
+                        FlatButton(onPressed: (){
+                          setState(() {
+                            error=true;
+                          });
+                          Navigator.push(context, MaterialPageRoute(
+                              builder: (context) => forpass()));
+                        }, child: Text("Forgot password",
+                          style: TextStyle(color: Colors.blue),
+                          textAlign: TextAlign.left,
+                        ),),
+                        Padding(padding: EdgeInsets.all(10.0)),
+                        FlatButton(onPressed: () {
+                          setState(() {
+                            error=true;
+                          });
+                          Navigator.push(context, MaterialPageRoute(
+                            builder: (context) => Signup()));},
+                            child: Text("Create Account",
+                              style: TextStyle(color: Colors.blue),
+                              textAlign: TextAlign.right,
+                            ))
+                      ],
+                    )
+                ),
+                Padding(padding: EdgeInsets.all(20.0)),
+                Container(
+                    width: MediaQuery.of(context).size.width * 0.4,
+                    height: MediaQuery.of(context).size.height * 0.07,
+                    decoration: BoxDecoration(
+                        image : DecorationImage(
+                          image: AssetImage("assets/images/sbox.JPG"),
+                          fit: BoxFit.fill,
                         )
                     ),
-                  )
-              ),
-              Container(
-                  width: MediaQuery.of(context).size.width * 0.85,
-                  height: MediaQuery.of(context).size.height * 0.05,
-                  child: Row(
-                    children: [
-                      FlatButton(onPressed: (){
-                        setState(() {
-                          error=true;
-                        });
-                        Navigator.push(context, MaterialPageRoute(
-                            builder: (context) => forpass()));
-                      }, child: Text("Forgot password",
-                        style: TextStyle(color: Colors.blue),
-                        textAlign: TextAlign.left,
-                      ),),
-                      Padding(padding: EdgeInsets.all(10.0)),
-                      FlatButton(onPressed: () {
-                        setState(() {
-                          error=true;
-                        });
-                        Navigator.push(context, MaterialPageRoute(
-                          builder: (context) => Signup()));},
-                          child: Text("Create Account",
-                            style: TextStyle(color: Colors.blue),
-                            textAlign: TextAlign.right,
-                          ))
-                    ],
-                  )
-              ),
-              Padding(padding: EdgeInsets.all(20.0)),
-              Container(
-                  width: MediaQuery.of(context).size.width * 0.4,
-                  height: MediaQuery.of(context).size.height * 0.07,
-                  decoration: BoxDecoration(
-                      image : DecorationImage(
-                        image: AssetImage("assets/images/sbox.JPG"),
-                        fit: BoxFit.fill,
-                      )
-                  ),
-                  child: FlatButton(
-                    onPressed: () {
-                      signin();
-                    },
-                    child: Text("Sign In",
-                      style: TextStyle(fontSize: 22),),
+                    child: FlatButton(
+                      onPressed: () {
+                        signin(_emailtext.text,
+                            _passtext.text);
+                      },
+                      child: Text("Sign In",
+                        style: TextStyle(fontSize: 22),),
 
-                  )
-              ),
-              Container(
-                child: error?Text(""):Text("incorrect credentials",style: TextStyle(fontSize: 20,color: Colors.red)),
-              )
-            ],
+                    )
+                ),
+                Container(
+                  child: error?Text(""):Text("incorrect credentials",style: TextStyle(fontSize: 20,color: Colors.red)),
+                )
+              ],
+            ),
+          ): Container(
+            decoration: BoxDecoration(
+                image : DecorationImage(
+                  image: AssetImage("assets/images/sign.png"),
+                  fit: BoxFit.fill,
+                )
+            ),
+            child: SpinKitFadingCircle(
+              color: Colors.purple,
+              size: 100.0,
+            )
           ),
-        ): Container(
-          decoration: BoxDecoration(
-              image : DecorationImage(
-                image: AssetImage("assets/images/sign.png"),
-                fit: BoxFit.fill,
-              )
-          ),
-          child: SpinKitFadingCircle(
-            color: Colors.purple,
-            size: 100.0,
-          )
-        ),
+      ),
     );
   }
 }
@@ -350,131 +356,134 @@ class _HomeState extends State<Home> {
   }
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        resizeToAvoidBottomInset: false,
-        body :!state? Container(
-            width: MediaQuery.of(context).size.width * 1,
-            decoration: BoxDecoration(
-                image : DecorationImage(
-                  image: AssetImage("assets/images/sign.png"),
-                  fit: BoxFit.fill,
-                )
-            ),
-            child: Column(
-                children: [
-                  Padding(padding: EdgeInsets.all(130.0)),
-                  Container(
-                    width: MediaQuery.of(context).size.width * 1,
-                    height: MediaQuery.of(context).size.height * 0.07,
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: Scaffold(
+          resizeToAvoidBottomInset: false,
+          body :!state? Container(
+              width: MediaQuery.of(context).size.width * 1,
+              decoration: BoxDecoration(
+                  image : DecorationImage(
+                    image: AssetImage("assets/images/sign.png"),
+                    fit: BoxFit.fill,
+                  )
+              ),
+              child: Column(
+                  children: [
+                    Padding(padding: EdgeInsets.all(130.0)),
+                    Container(
+                      width: MediaQuery.of(context).size.width * 1,
+                      height: MediaQuery.of(context).size.height * 0.07,
 
-                    child: Container(
-                      child: Text("Welcome ${widget.username}!",
-                        style: TextStyle(fontSize: 30,fontWeight: FontWeight.w700),
-                        textAlign: TextAlign.center,
+                      child: Container(
+                        child: Text("Welcome ${widget.username}!",
+                          style: TextStyle(fontSize: 30,fontWeight: FontWeight.w700),
+                          textAlign: TextAlign.center,
+                        ),
                       ),
                     ),
-                  ),
-                  Container(
-                    width: MediaQuery.of(context).size.width * 0.27,
-                    height: MediaQuery.of(context).size.height * 0.13,
-                    // color: Colors.blue,
-                    decoration: BoxDecoration(
-                        image : DecorationImage(
-                          image: AssetImage("assets/images/bbox.JPG"),
-                          fit: BoxFit.fill,
-                        )
+                    Container(
+                      width: MediaQuery.of(context).size.width * 0.27,
+                      height: MediaQuery.of(context).size.height * 0.13,
+                      // color: Colors.blue,
+                      decoration: BoxDecoration(
+                          image : DecorationImage(
+                            image: AssetImage("assets/images/bbox.JPG"),
+                            fit: BoxFit.fill,
+                          )
+                      ),
+                      child: IconButton(
+                        icon: Icon(Icons.camera_alt_outlined),
+                        iconSize: 40,
+                        color: Colors.black,
+                        onPressed: (){
+                          _openCamera();
+                        },
+                      ),
                     ),
-                    child: IconButton(
-                      icon: Icon(Icons.camera_alt_outlined),
-                      iconSize: 40,
-                      color: Colors.black,
-                      onPressed: (){
-                        _openCamera();
-                      },
+                    Padding(padding: EdgeInsets.all(20.0)),
+                    Container(
+                      width: MediaQuery.of(context).size.width * 0.27,
+                      height: MediaQuery.of(context).size.height * 0.13,
+                      decoration: BoxDecoration(
+                          image : DecorationImage(
+                            image: AssetImage("assets/images/bbox.JPG"),
+                            fit: BoxFit.fill,
+                          )
+                      ),
+                      child: IconButton(
+                        icon: Icon(Icons.upload_outlined),
+                        iconSize: 40,
+                        color: Colors.black,
+                        onPressed: (){
+                          _openGallery();
+                        },
+                      ),
                     ),
-                  ),
-                  Padding(padding: EdgeInsets.all(20.0)),
-                  Container(
-                    width: MediaQuery.of(context).size.width * 0.27,
-                    height: MediaQuery.of(context).size.height * 0.13,
-                    decoration: BoxDecoration(
-                        image : DecorationImage(
-                          image: AssetImage("assets/images/bbox.JPG"),
-                          fit: BoxFit.fill,
-                        )
+                    Padding(padding: EdgeInsets.all(20.0)),
+                    Container(
+                      width: MediaQuery.of(context).size.width * 0.27,
+                      height: MediaQuery.of(context).size.height * 0.13,
+                      decoration: BoxDecoration(
+                          image : DecorationImage(
+                            image: AssetImage("assets/images/bbox.JPG"),
+                            fit: BoxFit.fill,
+                          )
+                      ),
+                      child: IconButton(
+                        icon: Icon(Icons.fitness_center),
+                        iconSize: 40,
+                        color: Colors.black,
+                        onPressed: () async {
+                          setState(() {
+                            state = true;
+                          });
+                          int n=0;
+                          DateTime _date = DateTime.now();
+                          DatabaseReference ref = FirebaseDatabase.instance.ref("USERID/${widget.UID}/perbmi/CWeight");
+                          DatabaseEvent event = await ref.once();
+                          var cweight = event.snapshot.value;
+                          ref = FirebaseDatabase.instance.ref("USERID/${widget.UID}/perbmi/GWeight");
+                          event = await ref.once();
+                          var gweight = event.snapshot.value;
+                          ref = FirebaseDatabase.instance.ref("USERID/${widget.UID}/perbmi/n");
+                          event = await ref.once();
+                          var  Scale= event.snapshot.value;
+                          ref = FirebaseDatabase.instance.ref("USERID/${widget.UID}/peract/calorie");
+                          event = await ref.once();
+                          var  dcal= event.snapshot.value;
+                          ref = FirebaseDatabase.instance.ref("USERID/${widget.UID}/peract/n");
+                          event = await ref.once();
+                          var  act= event.snapshot.value;
+                          ref = FirebaseDatabase.instance.ref("USERID/${widget.UID}/daycalorie/${_date.day}-${_date.month}-${_date.year}/total/total");
+                          event = await ref.once();
+                          var  fcal= event.snapshot.value;
+                          ref = FirebaseDatabase.instance.ref("USERID/${widget.UID}/perbmi/type");
+                          event = await ref.once();
+                          var  g= event.snapshot.value;
+                          setState(() {
+                            state=false;
+                          });
+                          Navigator.push(context, MaterialPageRoute(
+                              builder: (context) => goal(cweight: cweight,gweight: gweight,act: act,dcal: dcal,fcal: fcal,scale: Scale,g: g,)));
+                        },
+                      ),
                     ),
-                    child: IconButton(
-                      icon: Icon(Icons.upload_outlined),
-                      iconSize: 40,
-                      color: Colors.black,
-                      onPressed: (){
-                        _openGallery();
-                      },
-                    ),
-                  ),
-                  Padding(padding: EdgeInsets.all(20.0)),
-                  Container(
-                    width: MediaQuery.of(context).size.width * 0.27,
-                    height: MediaQuery.of(context).size.height * 0.13,
-                    decoration: BoxDecoration(
-                        image : DecorationImage(
-                          image: AssetImage("assets/images/bbox.JPG"),
-                          fit: BoxFit.fill,
-                        )
-                    ),
-                    child: IconButton(
-                      icon: Icon(Icons.fitness_center),
-                      iconSize: 40,
-                      color: Colors.black,
-                      onPressed: () async {
-                        setState(() {
-                          state = true;
-                        });
-                        int n=0;
-                        DateTime _date = DateTime.now();
-                        DatabaseReference ref = FirebaseDatabase.instance.ref("USERID/${widget.UID}/perbmi/CWeight");
-                        DatabaseEvent event = await ref.once();
-                        var cweight = event.snapshot.value;
-                        ref = FirebaseDatabase.instance.ref("USERID/${widget.UID}/perbmi/GWeight");
-                        event = await ref.once();
-                        var gweight = event.snapshot.value;
-                        ref = FirebaseDatabase.instance.ref("USERID/${widget.UID}/perbmi/n");
-                        event = await ref.once();
-                        var  Scale= event.snapshot.value;
-                        ref = FirebaseDatabase.instance.ref("USERID/${widget.UID}/peract/calorie");
-                        event = await ref.once();
-                        var  dcal= event.snapshot.value;
-                        ref = FirebaseDatabase.instance.ref("USERID/${widget.UID}/peract/n");
-                        event = await ref.once();
-                        var  act= event.snapshot.value;
-                        ref = FirebaseDatabase.instance.ref("USERID/${widget.UID}/daycalorie/${_date.day}-${_date.month}-${_date.year}/total/total");
-                        event = await ref.once();
-                        var  fcal= event.snapshot.value;
-                        ref = FirebaseDatabase.instance.ref("USERID/${widget.UID}/perbmi/type");
-                        event = await ref.once();
-                        var  g= event.snapshot.value;
-                        setState(() {
-                          state=false;
-                        });
-                        Navigator.push(context, MaterialPageRoute(
-                            builder: (context) => goal(cweight: cweight,gweight: gweight,act: act,dcal: dcal,fcal: fcal,scale: Scale,g: g,)));
-                      },
-                    ),
-                  ),
-                ]
-            )
-        ):Container(
-            decoration: BoxDecoration(
-                image : DecorationImage(
-                  image: AssetImage("assets/images/sign.png"),
-                  fit: BoxFit.fill,
-                )
-            ),
-            child: SpinKitFadingCircle(
-              color: Colors.purple,
-              size: 100.0,
-            )
-        ),
+                  ]
+              )
+          ):Container(
+              decoration: BoxDecoration(
+                  image : DecorationImage(
+                    image: AssetImage("assets/images/sign.png"),
+                    fit: BoxFit.fill,
+                  )
+              ),
+              child: SpinKitFadingCircle(
+                color: Colors.purple,
+                size: 100.0,
+              )
+          ),
+      ),
     );
   }
 }
@@ -760,71 +769,84 @@ class _outputState extends State<output> {
     DatabaseReference ref = FirebaseDatabase.instance.ref("USERID/$user/daycalorie/$var2");
     DatabaseEvent event = await ref.once();
     var var1 = event.snapshot.value;
-    if(var1 == null)
-    {
-      DatabaseReference ref = FirebaseDatabase.instance.ref("USERID/$user/daycalorie");
-      await ref.set({
-        "$var2": {
-          "total":{
-            "total":sum,
-          },
-          "$_dropDownValue":{
-            _dropDownValue: sum,
+    if(_dropDownValue !=" ") {
+      if (var1 == null) {
+        DatabaseReference ref = FirebaseDatabase.instance.ref(
+            "USERID/$user/daycalorie");
+        await ref.set({
+          "$var2": {
+            "total": {
+              "total": sum,
+            },
+            "$_dropDownValue": {
+              _dropDownValue: sum,
+            }
+          }
+        });
+        setState(() {
+          state = false;
+        });
+        showAlertDialog(
+            context, "The total calorie $sum", "for $_dropDownValue");
+      }
+      else {
+        DatabaseReference ref = FirebaseDatabase.instance.ref(
+            "USERID/$user/daycalorie/$var2/$_dropDownValue");
+        DatabaseEvent event = await ref.once();
+        var var1 = event.snapshot.value;
+        if (var1 == null) {
+          DatabaseReference ref1 = FirebaseDatabase.instance.ref(
+              "USERID/$user/daycalorie/$var2/total/total");
+          DatabaseEvent event1 = await ref1.once();
+          var var1 = event1.snapshot.value.toString();
+          var total = double.parse(var1);
+          DatabaseReference ref2 = FirebaseDatabase.instance.ref(
+              "USERID/$user/peract/calorie");
+          DatabaseEvent event2 = await ref2.once();
+          var var3 = event2.snapshot.value.toString();
+          double ncal = double.parse(var3);
+          if (ncal <= (total + sum)) {
+            setState(() {
+              state = false;
+            });
+            showAlertDialog(
+                context, "It's going out of your calorie", "Warning");
+          }
+          else {
+            DatabaseReference ref1 = FirebaseDatabase.instance.ref(
+                "USERID/$user/daycalorie");
+            await ref1.update({
+              "$var2/$_dropDownValue": {
+                _dropDownValue: sum,
+              }
+            });
+            await ref1.update({
+              "$var2/total": {
+                "total": total + sum,
+              }
+            });
+            setState(() {
+              state = false;
+            });
+            showAlertDialog(
+                context, "The total calorie $sum", "for $_dropDownValue");
           }
         }
-      });
-      setState(() {
-        state = false;
-      });
-      showAlertDialog(context,"The total calorie $sum","for $_dropDownValue");
-    }
-    else
-    {
-      DatabaseReference ref = FirebaseDatabase.instance.ref("USERID/$user/daycalorie/$var2/$_dropDownValue");
-      DatabaseEvent event = await ref.once();
-      var var1 = event.snapshot.value;
-      if(var1==null)
-      {
-        DatabaseReference ref1 = FirebaseDatabase.instance.ref("USERID/$user/daycalorie/$var2/total/total");
-        DatabaseEvent event1 = await ref1.once();
-        var var1 = event1.snapshot.value.toString();
-        var total = double.parse(var1);
-        DatabaseReference ref2 = FirebaseDatabase.instance.ref("USERID/$user/peract/calorie");
-        DatabaseEvent event2 = await ref2.once();
-        var var3 = event2.snapshot.value.toString();
-        double ncal = double.parse(var3);
-        if(ncal <= (total+sum))
-        {
+        else {
           setState(() {
             state = false;
           });
-          showAlertDialog(context,"It's going out of your calorie","Warning");
-        }
-        else
-        {
-          DatabaseReference ref1 = FirebaseDatabase.instance.ref("USERID/$user/daycalorie");
-          await ref1.update({
-            "$var2/$_dropDownValue":{
-              _dropDownValue:sum,
-            }
-          });
-        await ref1.update({
-          "$var2/total":{
-            "total":total+sum,
-          }
-        });
-        setState(() {
-          state=false;
-        });
-          showAlertDialog(context,"The total calorie $sum","for $_dropDownValue");
+          showAlertDialog(
+              context, "You already updated $_dropDownValue", "Warning");
         }
       }
-      else{
-        setState(() {
-          state=false;
-        });
-        showAlertDialog(context,"You already updated $_dropDownValue","Warning");
-      }
+    }
+    else{
+      setState(() {
+        state =false;
+      });
+      showAlertDialog(
+          context, "The total calorie $sum", "for Given food");
     }
   }
   @override
@@ -1263,297 +1285,300 @@ class _Page1State extends State<Page1> {
     else{
       setState(() {
         state=false;
-        error="Enter all cerendials";
+        error="Enter all Details";
       });
     }
     }
   }
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: !state?Container(
-        decoration: BoxDecoration(
-            image : DecorationImage(
-              image: AssetImage("assets/images/history.png"),
-              fit: BoxFit.fill,
-            )
-        ),
-        child: Column(
-          children: [
-            Padding(padding: EdgeInsets.all(40.0)),
-            Container(
-              child: Row(
-                children: [
-                  Padding(padding: EdgeInsets.all(30.0)),
-                  Container(
-                    width: MediaQuery.of(context).size.width * 0.25,
-                    height: MediaQuery.of(context).size.height * 0.07,
-                    child: RaisedButton(
-                      onPressed: (){setState(() {
-                        _n=-1;
-                      });},
-                      color: Colors.blue,
-                      child: (_n == -1)? Text("lb,ft", style: TextStyle(fontSize: 20, color: Color(0XFF1D1F33),)):
-                      Text("lb,ft", style: TextStyle(fontSize: 20, color: Colors.white,)),
-                    ),
-                  ),
-                  Padding(padding: EdgeInsets.all(30.0)),
-                  Container(
-                    width: MediaQuery.of(context).size.width * 0.25,
-                    height: MediaQuery.of(context).size.height * 0.07,
-                    child: RaisedButton(
-                      onPressed: (){setState(() {
-                        _n=1;
-                      });},
-                      color: Colors.blue,
-                      child: (_n == 1)? Text("kg,cm", style: TextStyle(fontSize: 20, color: Color(0XFF1D1F33),)):
-                      Text("kg,cm", style: TextStyle(fontSize: 20, color: Colors.white,)),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Padding(padding: EdgeInsets.all(3.0)),
-            Padding(padding: EdgeInsets.all(5.0)),
-            Container(
-              width: MediaQuery.of(context).size.width * 0.8,
-              height: MediaQuery.of(context).size.height * 0.18,
-                color: Colors.blue,
-              child: Column(
-                children: [
-                  Padding(padding: EdgeInsets.all(5.0)),
-                  Text("HEIGHT",
-                    style: TextStyle(
-                      color: Color(0XFF1D1F33),
-                      fontSize: 20,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  Padding(padding: EdgeInsets.all(2.0)),
-                  (_n== 1)?RichText(text: TextSpan(
-                      children: [
-                        TextSpan(text: _cmheight.round().toString(),style: TextStyle(fontSize: 25, color: Colors.white,),),
-                        TextSpan(text: " cm",style: TextStyle(fontSize: 20, color: Colors.white54,),)
-                      ]
-                  )):
-                  RichText(text: TextSpan(
-                      children: [
-                        TextSpan(text: _ftheight.toString(),style: TextStyle(fontSize: 25, color: Colors.white,),),
-                        TextSpan(text: " feet",style: TextStyle(fontSize: 20, color: Colors.white54,),)
-                      ]
-                  )),
-                  (_n == 1)?SliderTheme(
-                    data: SliderThemeData(
-                      thumbColor: Colors.white54,
-                      thumbShape: RoundSliderThumbShape(enabledThumbRadius: 15.0),
-                      activeTrackColor: Color(0XFF1D1F33),
-                      inactiveTrackColor: Colors.white,),
-                    child: Slider(
-                        min: 100,
-                        max: 200,
-                        value: _cmheight,
-                        onChanged: (height){
-                          setState(() {
-                            _cmheight = height.roundToDouble();
-                          });
-                        }),
-                  ):
-                  SliderTheme(
-                    data: SliderThemeData(
-                      thumbColor: Colors.white54,
-                      thumbShape: RoundSliderThumbShape(enabledThumbRadius: 15.0),
-                      activeTrackColor: Color(0XFF1D1F33),
-                      inactiveTrackColor: Colors.white,),
-                    child: Slider(
-                        min: 3,
-                        max: 7,
-                        value: _ftheight,
-                        onChanged: (height){
-                          setState(() {
-                            int decimals = 2;
-                            num fac = pow(10, decimals);
-                            _ftheight = height;
-                            _ftheight = (_ftheight * fac).round() / fac;
-                          });
-                        }),
-                  )
-                ],
-              ),
-            ),
-            Padding(padding: EdgeInsets.all(10.0)),
-            Container(
-              child: Row(
-                children: [
-                  Padding(padding: EdgeInsets.all(17.5)),
-                  Container(
-                    width: MediaQuery.of(context).size.width * 0.38,
-                    height: MediaQuery.of(context).size.height * 0.23,
-                    color: Colors.blue,
-                    child: Column(
-                      children: [
-                        Padding(padding: EdgeInsets.all(3.0)),
-                        Text("CURRENT",style: TextStyle(fontSize: 20,color: Color(0XFF1D1F33),decoration: TextDecoration.none,),
-                          textAlign: TextAlign.center,),
-                        Text("WEIGHT",style: TextStyle(fontSize: 20,color: Color(0XFF1D1F33),decoration: TextDecoration.none,),
-                          textAlign: TextAlign.center,),
-                        Padding(padding: EdgeInsets.all(3.0)),
-                        (_n == 1)?Text(_kgcweight.round().toString(),style: TextStyle(fontSize: 25,color: Colors.white,decoration: TextDecoration.none,),
-                          textAlign: TextAlign.center,):
-                        Text(_lbcweight.toString(),style: TextStyle(fontSize: 25,color: Colors.white,decoration: TextDecoration.none,),
-                          textAlign: TextAlign.center,),
-                        Padding(padding: EdgeInsets.all(3.0)),
-                        Row(
-                          children: [
-                            Padding(padding: EdgeInsets.all(3.7)),
-                            FloatingActionButton(
-                              heroTag: "btn1",
-                              mini: true,
-                              backgroundColor: Color(0XFF1D1F33),
-                              onPressed: (){setState(() {
-                                if(_n==1){
-                                  _kgcweight=_kgcweight-1;
-
-                                }
-                                if(_n==-1){
-                                  int decimals = 2;
-                                  num fac = pow(10, decimals);
-                                  _lbcweight =_lbcweight - 2.2 ;
-                                  _lbcweight = (_lbcweight * fac).round() / fac;
-
-                                }
-                              });},
-                              child: Icon(
-                                Icons.remove,
-                                color: Colors.white,
-                                size: 20,
-                              ),
-                            ),
-                            Padding(padding: EdgeInsets.all(12.0)),
-                            FloatingActionButton(
-                              heroTag: "btn2",
-                              mini: true,
-                              backgroundColor: Color(0XFF1D1F33),
-                              onPressed: (){setState(() {
-                                if(_n==1){_kgcweight=_kgcweight+1;}
-                                else{
-                                  int decimals = 2;
-                                  num fac = pow(10, decimals);
-                                  _lbcweight =_lbcweight + 2.2 ;
-                                  _lbcweight = (_lbcweight * fac).round() / fac;
-                                }
-                              });},
-                              child: Icon(Icons.add, color: Colors.white, size: 20,),
-                            ),
-                          ],
-                        )
-                      ],
-                    ),
-                  ),
-                  Padding(padding: EdgeInsets.all(10.0)),
-                  Container(
-                    width: MediaQuery.of(context).size.width * 0.38,
-                    height: MediaQuery.of(context).size.height * 0.23,
-                    color: Colors.blue,
-                    child: Column(
-                      children: [
-                        Padding(padding: EdgeInsets.all(3.0)),
-                        Text("GOAL   WEIGHT",style: TextStyle(fontSize: 20,color: Color(0XFF1D1F33),decoration: TextDecoration.none,),
-                          textAlign: TextAlign.center,),
-                        Padding(padding: EdgeInsets.all(3.0)),
-                        (_n==1)?Text(_kggweight.round().toString(),style: TextStyle(fontSize: 25,color: Colors.white,decoration: TextDecoration.none,),
-        textAlign: TextAlign.center,):
-                        Text(_lbgweight.toString(),style: TextStyle(fontSize: 25,color: Colors.white,decoration: TextDecoration.none,),
-                          textAlign: TextAlign.center,),
-                        Padding(padding: EdgeInsets.all(3.0)),
-                        Row(
-                          children: [
-                            Padding(padding: EdgeInsets.all(3.7)),
-                            FloatingActionButton(
-                              heroTag: "btn3",
-                              mini: true,
-                              backgroundColor: Color(0XFF1D1F33),
-                              onPressed: (){setState(() {
-                                if(_n==1){_kggweight=_kggweight-1;}
-                                if(_n==-1){
-                                  int decimals = 2;
-                                  num fac = pow(10, decimals);
-                                  _lbgweight =_lbgweight - 2.2 ;
-                                  _lbgweight = (_lbgweight * fac).round() / fac;
-                                }
-                              });},
-                              child: Icon(
-                                Icons.remove,
-                                color: Colors.white,
-                                size: 20,
-                              ),
-                            ),
-                            Padding(padding: EdgeInsets.all(12.0)),
-                            FloatingActionButton(
-                              heroTag: "btn4",
-                              mini: true,
-                              backgroundColor: Color(0XFF1D1F33),
-                              onPressed: (){setState(() {if(_n==1){_kggweight=_kggweight+1;}
-                              else{
-                                int decimals = 2;
-                                num fac = pow(10, decimals);
-                                _lbgweight =_lbgweight + 2.2 ;
-                                _lbgweight = (_lbgweight * fac).round() / fac;
-                              };});},
-                              child: Icon(Icons.add, color: Colors.white, size: 20,),),
-                          ],
-                        )
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Padding(padding: EdgeInsets.all(15.0)),
-            Container(
-                width: MediaQuery.of(context).size.width * 0.8,
-                height: MediaQuery.of(context).size.height * 0.07,
-                child: Text("$error",
-                  style: TextStyle(color: Colors.red,fontSize: 20),textAlign: TextAlign.center,)
-            ),
-            Container(
-                width: MediaQuery.of(context).size.width * 0.4,
-                height: MediaQuery.of(context).size.height * 0.07,
-                decoration: BoxDecoration(image : DecorationImage(
-                      image: AssetImage("assets/images/sbox.JPG"), fit: BoxFit.fill,)),
-                child: FlatButton(
-                  onPressed: () {setState(() {
-                    int decimals = 2;
-                    num fac = pow(10, decimals);
-                    if(_n==1){
-                      BMI = ((_kgcweight /(_cmheight*_cmheight))*(100*100));
-                      BMI = (BMI * fac).round() / fac;
-                      (_kgcweight > _kggweight)? cat=1:(_kgcweight==_kggweight)?cat=2:cat=3;
-                      print(BMI);
-                    }
-                    if(_n==-1){
-                      BMI = (_lbcweight /(_ftheight*_ftheight))*703;
-                      BMI = (BMI * fac).round() / fac;
-                      (_lbcweight > _lbgweight)? cat=1:(_lbcweight==_lbgweight)?cat=2:cat=3;
-                      print(BMI);
-                    }
-                    ins(widget.user);
-                  });},
-                  child: Text("Next", style: TextStyle(fontSize: 22),),
-                )
-            ),
-          ],
-        ),
-      ):Container(
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: Scaffold(
+        body: !state?Container(
           decoration: BoxDecoration(
               image : DecorationImage(
-                image: AssetImage("assets/images/sign.png"),
+                image: AssetImage("assets/images/history.png"),
                 fit: BoxFit.fill,
               )
           ),
-          child: SpinKitFadingCircle(
-            color: Colors.purple,
-            size: 100.0,
-          )
+          child: Column(
+            children: [
+              Padding(padding: EdgeInsets.all(40.0)),
+              Container(
+                child: Row(
+                  children: [
+                    Padding(padding: EdgeInsets.all(30.0)),
+                    Container(
+                      width: MediaQuery.of(context).size.width * 0.25,
+                      height: MediaQuery.of(context).size.height * 0.07,
+                      child: RaisedButton(
+                        onPressed: (){setState(() {
+                          _n=-1;
+                        });},
+                        color: Colors.blue,
+                        child: (_n == -1)? Text("lb,ft", style: TextStyle(fontSize: 20, color: Color(0XFF1D1F33),)):
+                        Text("lb,ft", style: TextStyle(fontSize: 20, color: Colors.white,)),
+                      ),
+                    ),
+                    Padding(padding: EdgeInsets.all(30.0)),
+                    Container(
+                      width: MediaQuery.of(context).size.width * 0.25,
+                      height: MediaQuery.of(context).size.height * 0.07,
+                      child: RaisedButton(
+                        onPressed: (){setState(() {
+                          _n=1;
+                        });},
+                        color: Colors.blue,
+                        child: (_n == 1)? Text("kg,cm", style: TextStyle(fontSize: 20, color: Color(0XFF1D1F33),)):
+                        Text("kg,cm", style: TextStyle(fontSize: 20, color: Colors.white,)),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(padding: EdgeInsets.all(3.0)),
+              Padding(padding: EdgeInsets.all(5.0)),
+              Container(
+                width: MediaQuery.of(context).size.width * 0.8,
+                height: MediaQuery.of(context).size.height * 0.18,
+                  color: Colors.blue,
+                child: Column(
+                  children: [
+                    Padding(padding: EdgeInsets.all(5.0)),
+                    Text("HEIGHT",
+                      style: TextStyle(
+                        color: Color(0XFF1D1F33),
+                        fontSize: 20,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    Padding(padding: EdgeInsets.all(2.0)),
+                    (_n== 1)?RichText(text: TextSpan(
+                        children: [
+                          TextSpan(text: _cmheight.round().toString(),style: TextStyle(fontSize: 25, color: Colors.white,),),
+                          TextSpan(text: " cm",style: TextStyle(fontSize: 20, color: Colors.white54,),)
+                        ]
+                    )):
+                    RichText(text: TextSpan(
+                        children: [
+                          TextSpan(text: _ftheight.toString(),style: TextStyle(fontSize: 25, color: Colors.white,),),
+                          TextSpan(text: " feet",style: TextStyle(fontSize: 20, color: Colors.white54,),)
+                        ]
+                    )),
+                    (_n == 1)?SliderTheme(
+                      data: SliderThemeData(
+                        thumbColor: Colors.white54,
+                        thumbShape: RoundSliderThumbShape(enabledThumbRadius: 15.0),
+                        activeTrackColor: Color(0XFF1D1F33),
+                        inactiveTrackColor: Colors.white,),
+                      child: Slider(
+                          min: 100,
+                          max: 200,
+                          value: _cmheight,
+                          onChanged: (height){
+                            setState(() {
+                              _cmheight = height.roundToDouble();
+                            });
+                          }),
+                    ):
+                    SliderTheme(
+                      data: SliderThemeData(
+                        thumbColor: Colors.white54,
+                        thumbShape: RoundSliderThumbShape(enabledThumbRadius: 15.0),
+                        activeTrackColor: Color(0XFF1D1F33),
+                        inactiveTrackColor: Colors.white,),
+                      child: Slider(
+                          min: 3,
+                          max: 7,
+                          value: _ftheight,
+                          onChanged: (height){
+                            setState(() {
+                              int decimals = 2;
+                              num fac = pow(10, decimals);
+                              _ftheight = height;
+                              _ftheight = (_ftheight * fac).round() / fac;
+                            });
+                          }),
+                    )
+                  ],
+                ),
+              ),
+              Padding(padding: EdgeInsets.all(10.0)),
+              Container(
+                child: Row(
+                  children: [
+                    Padding(padding: EdgeInsets.all(17.5)),
+                    Container(
+                      width: MediaQuery.of(context).size.width * 0.38,
+                      height: MediaQuery.of(context).size.height * 0.23,
+                      color: Colors.blue,
+                      child: Column(
+                        children: [
+                          Padding(padding: EdgeInsets.all(3.0)),
+                          Text("CURRENT",style: TextStyle(fontSize: 20,color: Color(0XFF1D1F33),decoration: TextDecoration.none,),
+                            textAlign: TextAlign.center,),
+                          Text("WEIGHT",style: TextStyle(fontSize: 20,color: Color(0XFF1D1F33),decoration: TextDecoration.none,),
+                            textAlign: TextAlign.center,),
+                          Padding(padding: EdgeInsets.all(3.0)),
+                          (_n == 1)?Text(_kgcweight.round().toString(),style: TextStyle(fontSize: 25,color: Colors.white,decoration: TextDecoration.none,),
+                            textAlign: TextAlign.center,):
+                          Text(_lbcweight.toString(),style: TextStyle(fontSize: 25,color: Colors.white,decoration: TextDecoration.none,),
+                            textAlign: TextAlign.center,),
+                          Padding(padding: EdgeInsets.all(3.0)),
+                          Row(
+                            children: [
+                              Padding(padding: EdgeInsets.all(3.7)),
+                              FloatingActionButton(
+                                heroTag: "btn1",
+                                mini: true,
+                                backgroundColor: Color(0XFF1D1F33),
+                                onPressed: (){setState(() {
+                                  if(_n==1){
+                                    _kgcweight=_kgcweight-1;
+
+                                  }
+                                  if(_n==-1){
+                                    int decimals = 2;
+                                    num fac = pow(10, decimals);
+                                    _lbcweight =_lbcweight - 2.2 ;
+                                    _lbcweight = (_lbcweight * fac).round() / fac;
+
+                                  }
+                                });},
+                                child: Icon(
+                                  Icons.remove,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                              ),
+                              Padding(padding: EdgeInsets.all(12.0)),
+                              FloatingActionButton(
+                                heroTag: "btn2",
+                                mini: true,
+                                backgroundColor: Color(0XFF1D1F33),
+                                onPressed: (){setState(() {
+                                  if(_n==1){_kgcweight=_kgcweight+1;}
+                                  else{
+                                    int decimals = 2;
+                                    num fac = pow(10, decimals);
+                                    _lbcweight =_lbcweight + 2.2 ;
+                                    _lbcweight = (_lbcweight * fac).round() / fac;
+                                  }
+                                });},
+                                child: Icon(Icons.add, color: Colors.white, size: 20,),
+                              ),
+                            ],
+                          )
+                        ],
+                      ),
+                    ),
+                    Padding(padding: EdgeInsets.all(10.0)),
+                    Container(
+                      width: MediaQuery.of(context).size.width * 0.38,
+                      height: MediaQuery.of(context).size.height * 0.23,
+                      color: Colors.blue,
+                      child: Column(
+                        children: [
+                          Padding(padding: EdgeInsets.all(3.0)),
+                          Text("GOAL   WEIGHT",style: TextStyle(fontSize: 20,color: Color(0XFF1D1F33),decoration: TextDecoration.none,),
+                            textAlign: TextAlign.center,),
+                          Padding(padding: EdgeInsets.all(3.0)),
+                          (_n==1)?Text(_kggweight.round().toString(),style: TextStyle(fontSize: 25,color: Colors.white,decoration: TextDecoration.none,),
+          textAlign: TextAlign.center,):
+                          Text(_lbgweight.toString(),style: TextStyle(fontSize: 25,color: Colors.white,decoration: TextDecoration.none,),
+                            textAlign: TextAlign.center,),
+                          Padding(padding: EdgeInsets.all(3.0)),
+                          Row(
+                            children: [
+                              Padding(padding: EdgeInsets.all(3.7)),
+                              FloatingActionButton(
+                                heroTag: "btn3",
+                                mini: true,
+                                backgroundColor: Color(0XFF1D1F33),
+                                onPressed: (){setState(() {
+                                  if(_n==1){_kggweight=_kggweight-1;}
+                                  if(_n==-1){
+                                    int decimals = 2;
+                                    num fac = pow(10, decimals);
+                                    _lbgweight =_lbgweight - 2.2 ;
+                                    _lbgweight = (_lbgweight * fac).round() / fac;
+                                  }
+                                });},
+                                child: Icon(
+                                  Icons.remove,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                              ),
+                              Padding(padding: EdgeInsets.all(12.0)),
+                              FloatingActionButton(
+                                heroTag: "btn4",
+                                mini: true,
+                                backgroundColor: Color(0XFF1D1F33),
+                                onPressed: (){setState(() {if(_n==1){_kggweight=_kggweight+1;}
+                                else{
+                                  int decimals = 2;
+                                  num fac = pow(10, decimals);
+                                  _lbgweight =_lbgweight + 2.2 ;
+                                  _lbgweight = (_lbgweight * fac).round() / fac;
+                                };});},
+                                child: Icon(Icons.add, color: Colors.white, size: 20,),),
+                            ],
+                          )
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(padding: EdgeInsets.all(15.0)),
+              Container(
+                  width: MediaQuery.of(context).size.width * 0.8,
+                  height: MediaQuery.of(context).size.height * 0.07,
+                  child: Text("$error",
+                    style: TextStyle(color: Colors.red,fontSize: 20),textAlign: TextAlign.center,)
+              ),
+              Container(
+                  width: MediaQuery.of(context).size.width * 0.4,
+                  height: MediaQuery.of(context).size.height * 0.07,
+                  decoration: BoxDecoration(image : DecorationImage(
+                        image: AssetImage("assets/images/sbox.JPG"), fit: BoxFit.fill,)),
+                  child: FlatButton(
+                    onPressed: () {setState(() {
+                      int decimals = 2;
+                      num fac = pow(10, decimals);
+                      if(_n==1){
+                        BMI = ((_kgcweight /(_cmheight*_cmheight))*(100*100));
+                        BMI = (BMI * fac).round() / fac;
+                        (_kgcweight > _kggweight)? cat=1:(_kgcweight==_kggweight)?cat=2:cat=3;
+                        print(BMI);
+                      }
+                      if(_n==-1){
+                        BMI = (_lbcweight /(_ftheight*_ftheight))*703;
+                        BMI = (BMI * fac).round() / fac;
+                        (_lbcweight > _lbgweight)? cat=1:(_lbcweight==_lbgweight)?cat=2:cat=3;
+                        print(BMI);
+                      }
+                      ins(widget.user);
+                    });},
+                    child: Text("Next", style: TextStyle(fontSize: 22),),
+                  )
+              ),
+            ],
+          ),
+        ):Container(
+            decoration: BoxDecoration(
+                image : DecorationImage(
+                  image: AssetImage("assets/images/sign.png"),
+                  fit: BoxFit.fill,
+                )
+            ),
+            child: SpinKitFadingCircle(
+              color: Colors.purple,
+              size: 100.0,
+            )
+        ),
       ),
     );
   }
@@ -1620,160 +1645,163 @@ class _Page2State extends State<Page2> {
     else{
       setState(() {
         state=false;
-        error="Enter all cerendials";
+        error="Enter all Details";
       });
     }
   }
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: !state?Container(
-        decoration: BoxDecoration(
-            image : DecorationImage(
-              image: AssetImage("assets/images/history.png"),
-              fit: BoxFit.fill,
-            )
-        ),
-        child: Column(
-          children: [
-            Padding(padding: EdgeInsets.all(50.0)),
-            Container(
-              child: Row(
-                children: [
-                  Padding(padding: EdgeInsets.all(17.5)),
-                  Container(
-                    width: MediaQuery.of(context).size.width * 0.35,
-                    height: MediaQuery.of(context).size.height * 0.2,
-                    child: RaisedButton(onPressed: (){setState(() {_gen = -1;});},
-                      color: Colors.blue,
-                      child: Column(
-                        children: [
-                          Container(
-                            child: (_gen == -1)?
-                            Icon(Icons.male,color: Color(0XFF1D1F33), size: 100,):
-                            Icon(Icons.male,color: Colors.white,size: 100,),
-                          ),
-                          //Padding(padding: EdgeInsets.all(17.5)),
-                          Container(
-                            child: (_gen == -1)?
-                            Text("MALE",style: TextStyle(fontSize: 20,color: Color(0XFF1D1F33),)):
-                            Text("MALE", style: TextStyle(fontSize: 20, color: Colors.white,)),
-                          )
-                        ],
-                      ),
-                    ),
-                  ),
-                  Padding(padding: EdgeInsets.all(18.0)),
-                  Container(
-                    width: MediaQuery.of(context).size.width * 0.35,
-                    height: MediaQuery.of(context).size.height * 0.2,
-                    child: RaisedButton(onPressed: (){setState(() {_gen = 1;});},
-                      color: Colors.blue,
-                      child: Column(
-                        children: [
-                          Container(
-                            child: (_gen == 1)?
-                            Icon(Icons.female,color: Color(0XFF1D1F33), size: 100,):
-                            Icon(Icons.female,color: Colors.white,size: 100,),
-                          ),
-                          //Padding(padding: EdgeInsets.all(17.5)),
-                          Container(
-                            child: (_gen == 1)?
-                            Text("FEMALE",style: TextStyle(fontSize: 20,color: Color(0XFF1D1F33),)):
-                            Text("FEMALE", style: TextStyle(fontSize: 20, color: Colors.white,)),
-                          )
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Padding(padding: EdgeInsets.all(5.0)),
-            Container(
-              width: MediaQuery.of(context).size.width * 0.8,
-              height: MediaQuery.of(context).size.height * 0.18,
-              color: Colors.blue,
-              child: Column(
-                children: [
-                  Padding(padding: EdgeInsets.all(5.0)),
-                  Text("AGE", style: TextStyle(color: Color(0XFF1D1F33),fontSize: 20,fontWeight: FontWeight.w500,),),
-                  Padding(padding: EdgeInsets.all(2.0)),
-                 Text(_age.round().toString(),style: TextStyle(fontSize: 25, color: Colors.white,)),
-                  SliderTheme(
-                    data: SliderThemeData(
-                      thumbColor: Colors.white54,
-                      thumbShape: RoundSliderThumbShape(enabledThumbRadius: 15.0),
-                      activeTrackColor: Color(0XFF1D1F33),
-                      inactiveTrackColor: Colors.white,),
-                    child: Slider(min: 13, max: 100, value: _age,
-                        onChanged: (age){setState(() {_age = age.roundToDouble();});
-                        }),
-                  )
-                ],
-              ),
-            ),
-            Padding(padding: EdgeInsets.all(10.0)),
-            Container(
-              child: Row(
-                children: [
-                  Padding(padding: EdgeInsets.all(22.0)),
-                  Container(
-                    width: MediaQuery.of(context).size.width * 0.35,
-                    height: MediaQuery.of(context).size.height * 0.1,
-                    child: RaisedButton(
-                      onPressed: (){setState(() {_n=-1;});},
-                      color: Colors.blue,
-                      child: (_n == -1)? Text("Active", style: TextStyle(fontSize: 20, color: Color(0XFF1D1F33),)):
-                      Text("Active", style: TextStyle(fontSize: 20, color: Colors.white,)),
-                    ),
-                  ),
-                  Padding(padding: EdgeInsets.all(10.0)),
-                  Container(
-                    width: MediaQuery.of(context).size.width * 0.35,
-                    height: MediaQuery.of(context).size.height * 0.1,
-                    child: RaisedButton(
-                      onPressed: (){setState(() {_n=1;});},
-                      color: Colors.blue,
-                      child: (_n == 1)? Text("Moderalty Active", style: TextStyle(fontSize: 20, color: Color(0XFF1D1F33),)):
-                      Text("Moderalty Active", style: TextStyle(fontSize: 20, color: Colors.white,)),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Padding(padding: EdgeInsets.all(15.0)),
-            Container(
-                width: MediaQuery.of(context).size.width * 0.8,
-                height: MediaQuery.of(context).size.height * 0.07,
-                child: Text("$error",
-                  style: TextStyle(color: Colors.red,fontSize: 20),textAlign: TextAlign.center,)
-            ),
-            Container(
-                width: MediaQuery.of(context).size.width * 0.4,
-                height: MediaQuery.of(context).size.height * 0.07,
-                decoration: BoxDecoration(image : DecorationImage(
-                  image: AssetImage("assets/images/sbox.JPG"), fit: BoxFit.fill,)),
-                child: FlatButton(
-                  onPressed: () {
-                    ins(widget.user);
-                    },
-                  child: Text("Next", style: TextStyle(fontSize: 22),),
-                )
-            ),
-          ],
-        ),
-      ):Container(
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: Scaffold(
+        body: !state?Container(
           decoration: BoxDecoration(
               image : DecorationImage(
-                image: AssetImage("assets/images/sign.png"),
+                image: AssetImage("assets/images/history.png"),
                 fit: BoxFit.fill,
               )
           ),
-          child: SpinKitFadingCircle(
-            color: Colors.purple,
-            size: 100.0,
-          )
+          child: Column(
+            children: [
+              Padding(padding: EdgeInsets.all(50.0)),
+              Container(
+                child: Row(
+                  children: [
+                    Padding(padding: EdgeInsets.all(17.5)),
+                    Container(
+                      width: MediaQuery.of(context).size.width * 0.35,
+                      height: MediaQuery.of(context).size.height * 0.2,
+                      child: RaisedButton(onPressed: (){setState(() {_gen = -1;});},
+                        color: Colors.blue,
+                        child: Column(
+                          children: [
+                            Container(
+                              child: (_gen == -1)?
+                              Icon(Icons.male,color: Color(0XFF1D1F33), size: 100,):
+                              Icon(Icons.male,color: Colors.white,size: 100,),
+                            ),
+                            //Padding(padding: EdgeInsets.all(17.5)),
+                            Container(
+                              child: (_gen == -1)?
+                              Text("MALE",style: TextStyle(fontSize: 20,color: Color(0XFF1D1F33),)):
+                              Text("MALE", style: TextStyle(fontSize: 20, color: Colors.white,)),
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                    Padding(padding: EdgeInsets.all(18.0)),
+                    Container(
+                      width: MediaQuery.of(context).size.width * 0.35,
+                      height: MediaQuery.of(context).size.height * 0.2,
+                      child: RaisedButton(onPressed: (){setState(() {_gen = 1;});},
+                        color: Colors.blue,
+                        child: Column(
+                          children: [
+                            Container(
+                              child: (_gen == 1)?
+                              Icon(Icons.female,color: Color(0XFF1D1F33), size: 100,):
+                              Icon(Icons.female,color: Colors.white,size: 100,),
+                            ),
+                            //Padding(padding: EdgeInsets.all(17.5)),
+                            Container(
+                              child: (_gen == 1)?
+                              Text("FEMALE",style: TextStyle(fontSize: 20,color: Color(0XFF1D1F33),)):
+                              Text("FEMALE", style: TextStyle(fontSize: 20, color: Colors.white,)),
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(padding: EdgeInsets.all(5.0)),
+              Container(
+                width: MediaQuery.of(context).size.width * 0.8,
+                height: MediaQuery.of(context).size.height * 0.18,
+                color: Colors.blue,
+                child: Column(
+                  children: [
+                    Padding(padding: EdgeInsets.all(5.0)),
+                    Text("AGE", style: TextStyle(color: Color(0XFF1D1F33),fontSize: 20,fontWeight: FontWeight.w500,),),
+                    Padding(padding: EdgeInsets.all(2.0)),
+                   Text(_age.round().toString(),style: TextStyle(fontSize: 25, color: Colors.white,)),
+                    SliderTheme(
+                      data: SliderThemeData(
+                        thumbColor: Colors.white54,
+                        thumbShape: RoundSliderThumbShape(enabledThumbRadius: 15.0),
+                        activeTrackColor: Color(0XFF1D1F33),
+                        inactiveTrackColor: Colors.white,),
+                      child: Slider(min: 13, max: 100, value: _age,
+                          onChanged: (age){setState(() {_age = age.roundToDouble();});
+                          }),
+                    )
+                  ],
+                ),
+              ),
+              Padding(padding: EdgeInsets.all(10.0)),
+              Container(
+                child: Row(
+                  children: [
+                    Padding(padding: EdgeInsets.all(22.0)),
+                    Container(
+                      width: MediaQuery.of(context).size.width * 0.35,
+                      height: MediaQuery.of(context).size.height * 0.1,
+                      child: RaisedButton(
+                        onPressed: (){setState(() {_n=-1;});},
+                        color: Colors.blue,
+                        child: (_n == -1)? Text("Active", style: TextStyle(fontSize: 20, color: Color(0XFF1D1F33),)):
+                        Text("Active", style: TextStyle(fontSize: 20, color: Colors.white,)),
+                      ),
+                    ),
+                    Padding(padding: EdgeInsets.all(10.0)),
+                    Container(
+                      width: MediaQuery.of(context).size.width * 0.35,
+                      height: MediaQuery.of(context).size.height * 0.1,
+                      child: RaisedButton(
+                        onPressed: (){setState(() {_n=1;});},
+                        color: Colors.blue,
+                        child: (_n == 1)? Text("Moderalty Active", style: TextStyle(fontSize: 20, color: Color(0XFF1D1F33),)):
+                        Text("Moderalty Active", style: TextStyle(fontSize: 20, color: Colors.white,)),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(padding: EdgeInsets.all(15.0)),
+              Container(
+                  width: MediaQuery.of(context).size.width * 0.8,
+                  height: MediaQuery.of(context).size.height * 0.07,
+                  child: Text("$error",
+                    style: TextStyle(color: Colors.red,fontSize: 20),textAlign: TextAlign.center,)
+              ),
+              Container(
+                  width: MediaQuery.of(context).size.width * 0.4,
+                  height: MediaQuery.of(context).size.height * 0.07,
+                  decoration: BoxDecoration(image : DecorationImage(
+                    image: AssetImage("assets/images/sbox.JPG"), fit: BoxFit.fill,)),
+                  child: FlatButton(
+                    onPressed: () {
+                      ins(widget.user);
+                      },
+                    child: Text("Next", style: TextStyle(fontSize: 22),),
+                  )
+              ),
+            ],
+          ),
+        ):Container(
+            decoration: BoxDecoration(
+                image : DecorationImage(
+                  image: AssetImage("assets/images/sign.png"),
+                  fit: BoxFit.fill,
+                )
+            ),
+            child: SpinKitFadingCircle(
+              color: Colors.purple,
+              size: 100.0,
+            )
+        ),
       ),
     );
   }
@@ -1792,86 +1820,89 @@ class approve extends StatefulWidget {
 class _approveState extends State<approve> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        resizeToAvoidBottomInset: false,
-        body : Container(
-          width: MediaQuery.of(context).size.width * 1,
-          decoration: BoxDecoration(
-              image : DecorationImage(
-                image: AssetImage("assets/images/sign.png"),
-                fit: BoxFit.fill,
-              )
-          ),
-          child: Column(
-            children: [
-              Padding(padding: EdgeInsets.all(110.0)),
-              Container(
-                  width: MediaQuery.of(context).size.width * 0.85,
-                  height: MediaQuery.of(context).size.height * 0.1,
-                  child: Text("SUCCESSFULL!",
-                    style: TextStyle(fontSize: 40),
-                    textAlign: TextAlign.center,
-                  )
-              ),
-              Padding(padding: EdgeInsets.all(5.0)),
-              Container(
-                  width: MediaQuery.of(context).size.width * 0.85,
-                  height: MediaQuery.of(context).size.height * 0.05,
-                  child: Icon(Icons.check,
-                    size: 80,
-                    color: Colors.black,
-                  )
-              ),
-              Padding(padding: EdgeInsets.all(30.0)),
-              Container(
-                  width: MediaQuery.of(context).size.width * 0.85,
-                  height: MediaQuery.of(context).size.height * 0.05,
-                  child: Text("Accont created succesfully",
-                    style: TextStyle(fontSize: 20),
-                    textAlign: TextAlign.center,
-                  )
-              ),
-              Container(
-                  child: (widget.BMI >= 18.5)?
-                  Container(
-                      child: (widget.BMI >= 25)?
-                      Text("NORMALWEIGHT",style: TextStyle(fontSize: 20,fontWeight: FontWeight.w700),):
-                      Text("OVERWEIGHT",style: TextStyle(fontSize: 20,fontWeight: FontWeight.w700),)
-                  ):
-                  Text("UNDERWEIGHT",style: TextStyle(fontSize: 20,fontWeight: FontWeight.w700),)
-              ),
-              Container(
-                  width: MediaQuery.of(context).size.width * 0.85,
-                  height: MediaQuery.of(context).size.height * 0.1,
-                  child: (widget.cat == 1)?
-                  Text("By eating ${widget.cal} calories you can reduce weight by 1 pd per week",style: TextStyle(fontSize: 20,fontWeight: FontWeight.w700),textAlign: TextAlign.center,):
-                  (widget.cat == 2)?
-                  Text("By eating ${widget.cal} calories you can maintain your weight 1",style: TextStyle(fontSize: 20,fontWeight: FontWeight.w700),textAlign: TextAlign.center,):
-                  Text("By eating ${widget.cal} calories you can gain weight by 1 pd per week",style: TextStyle(fontSize: 20,fontWeight: FontWeight.w700),textAlign: TextAlign.center,)
-              ),
-              Padding(padding: EdgeInsets.all(10.0)),
-              Container(
-                  width: MediaQuery.of(context).size.width * 0.4,
-                  height: MediaQuery.of(context).size.height * 0.07,
-                  decoration: BoxDecoration(
-                      image : DecorationImage(
-                        image: AssetImage("assets/images/sbox.JPG"),
-                        fit: BoxFit.fill,
-                      )
-                  ),
-                  child: FlatButton(
-                    onPressed: () {
-                      Navigator.push(context, MaterialPageRoute(
-                          builder: (context) => SignScreen1()));
-                    },
-                    child: Text("Sign In",
-                      style: TextStyle(fontSize: 22),),
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: Scaffold(
+          resizeToAvoidBottomInset: false,
+          body : Container(
+            width: MediaQuery.of(context).size.width * 1,
+            decoration: BoxDecoration(
+                image : DecorationImage(
+                  image: AssetImage("assets/images/sign.png"),
+                  fit: BoxFit.fill,
+                )
+            ),
+            child: Column(
+              children: [
+                Padding(padding: EdgeInsets.all(110.0)),
+                Container(
+                    width: MediaQuery.of(context).size.width * 0.85,
+                    height: MediaQuery.of(context).size.height * 0.1,
+                    child: Text("SUCCESSFULL!",
+                      style: TextStyle(fontSize: 40),
+                      textAlign: TextAlign.center,
+                    )
+                ),
+                Padding(padding: EdgeInsets.all(5.0)),
+                Container(
+                    width: MediaQuery.of(context).size.width * 0.85,
+                    height: MediaQuery.of(context).size.height * 0.05,
+                    child: Icon(Icons.check,
+                      size: 80,
+                      color: Colors.black,
+                    )
+                ),
+                Padding(padding: EdgeInsets.all(30.0)),
+                Container(
+                    width: MediaQuery.of(context).size.width * 0.85,
+                    height: MediaQuery.of(context).size.height * 0.05,
+                    child: Text("Accont created succesfully",
+                      style: TextStyle(fontSize: 20),
+                      textAlign: TextAlign.center,
+                    )
+                ),
+                Container(
+                    child: (widget.BMI >= 18.5)?
+                    Container(
+                        child: (widget.BMI <= 25)?
+                        Text("NORMALWEIGHT",style: TextStyle(fontSize: 20,fontWeight: FontWeight.w700),):
+                        Text("OVERWEIGHT",style: TextStyle(fontSize: 20,fontWeight: FontWeight.w700),)
+                    ):
+                    Text("UNDERWEIGHT",style: TextStyle(fontSize: 20,fontWeight: FontWeight.w700),)
+                ),
+                Container(
+                    width: MediaQuery.of(context).size.width * 0.85,
+                    height: MediaQuery.of(context).size.height * 0.1,
+                    child: (widget.cat == 1)?
+                    Text("By eating ${widget.cal} calories you can reduce weight by 1 pd per week",style: TextStyle(fontSize: 20,fontWeight: FontWeight.w700),textAlign: TextAlign.center,):
+                    (widget.cat == 2)?
+                    Text("By eating ${widget.cal} calories you can maintain your weight 1",style: TextStyle(fontSize: 20,fontWeight: FontWeight.w700),textAlign: TextAlign.center,):
+                    Text("By eating ${widget.cal} calories you can gain weight by 1 pd per week",style: TextStyle(fontSize: 20,fontWeight: FontWeight.w700),textAlign: TextAlign.center,)
+                ),
+                Padding(padding: EdgeInsets.all(10.0)),
+                Container(
+                    width: MediaQuery.of(context).size.width * 0.4,
+                    height: MediaQuery.of(context).size.height * 0.07,
+                    decoration: BoxDecoration(
+                        image : DecorationImage(
+                          image: AssetImage("assets/images/sbox.JPG"),
+                          fit: BoxFit.fill,
+                        )
+                    ),
+                    child: FlatButton(
+                      onPressed: () {
+                        Navigator.push(context, MaterialPageRoute(
+                            builder: (context) => SignScreen1()));
+                      },
+                      child: Text("Sign In",
+                        style: TextStyle(fontSize: 22),),
 
-                  )
-              ),
-            ],
-          ),
-        )
+                    )
+                ),
+              ],
+            ),
+          )
+      ),
     );
   }
 }
@@ -2002,70 +2033,73 @@ class passapp extends StatelessWidget {
         super(key:key);
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        resizeToAvoidBottomInset: false,
-        body : Container(
-          width: MediaQuery.of(context).size.width * 1,
-          decoration: BoxDecoration(
-              image : DecorationImage(
-                image: AssetImage("assets/images/sign.png"),
-                fit: BoxFit.fill,
-              )
-          ),
-          child: Column(
-            children: [
-              Padding(padding: EdgeInsets.all(110.0)),
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: Scaffold(
+          resizeToAvoidBottomInset: false,
+          body : Container(
+            width: MediaQuery.of(context).size.width * 1,
+            decoration: BoxDecoration(
+                image : DecorationImage(
+                  image: AssetImage("assets/images/sign.png"),
+                  fit: BoxFit.fill,
+                )
+            ),
+            child: Column(
+              children: [
+                Padding(padding: EdgeInsets.all(110.0)),
 
-              Container(
-                  width: MediaQuery.of(context).size.width * 0.85,
-                  height: MediaQuery.of(context).size.height * 0.15,
-                  child:
-                  Text("PASSWORD UPDATED",
-                    style: TextStyle(fontSize: 40),
-                    textAlign: TextAlign.center,
-                  )
-              ),
-              //Padding(padding: EdgeInsets.all(5.0)),
-              Container(
-                  width: MediaQuery.of(context).size.width * 0.85,
-                  height: MediaQuery.of(context).size.height * 0.05,
-                  child: Icon(Icons.check_circle_outline,
-                    size: 80,
-                    color: Colors.black,
-                  )
-              ),
-              Padding(padding: EdgeInsets.all(30.0)),
-              Container(
-                  width: MediaQuery.of(context).size.width * 0.85,
-                  height: MediaQuery.of(context).size.height * 0.15,
-                  child:
-                  Text("Your identity has been verified ,  set your new password in the sent link then try to login",
-                    style: TextStyle(fontSize: 20),
-                    textAlign: TextAlign.center,
-                  )
-              ),
-              Padding(padding: EdgeInsets.all(10.0)),
-              Container(
-                  width: MediaQuery.of(context).size.width * 0.4,
-                  height: MediaQuery.of(context).size.height * 0.07,
-                  decoration: BoxDecoration(
-                      image : DecorationImage(
-                        image: AssetImage("assets/images/sbox.JPG"),
-                        fit: BoxFit.fill,
-                      )
-                  ),
-                  child: FlatButton(
-                      onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(
-                            builder: (context) => SignScreen1()));
-                      },
-                      child:Text("Sign In",
-                        style: TextStyle(fontSize: 22),)
-                  )
-              ),
-            ],
-          ),
-        )
+                Container(
+                    width: MediaQuery.of(context).size.width * 0.85,
+                    height: MediaQuery.of(context).size.height * 0.15,
+                    child:
+                    Text("PASSWORD UPDATED",
+                      style: TextStyle(fontSize: 40),
+                      textAlign: TextAlign.center,
+                    )
+                ),
+                //Padding(padding: EdgeInsets.all(5.0)),
+                Container(
+                    width: MediaQuery.of(context).size.width * 0.85,
+                    height: MediaQuery.of(context).size.height * 0.05,
+                    child: Icon(Icons.check_circle_outline,
+                      size: 80,
+                      color: Colors.black,
+                    )
+                ),
+                Padding(padding: EdgeInsets.all(30.0)),
+                Container(
+                    width: MediaQuery.of(context).size.width * 0.85,
+                    height: MediaQuery.of(context).size.height * 0.15,
+                    child:
+                    Text("Your identity has been verified ,  set your new password in the sent link then try to login",
+                      style: TextStyle(fontSize: 20),
+                      textAlign: TextAlign.center,
+                    )
+                ),
+                Padding(padding: EdgeInsets.all(10.0)),
+                Container(
+                    width: MediaQuery.of(context).size.width * 0.4,
+                    height: MediaQuery.of(context).size.height * 0.07,
+                    decoration: BoxDecoration(
+                        image : DecorationImage(
+                          image: AssetImage("assets/images/sbox.JPG"),
+                          fit: BoxFit.fill,
+                        )
+                    ),
+                    child: FlatButton(
+                        onPressed: () {
+                          Navigator.push(context, MaterialPageRoute(
+                              builder: (context) => SignScreen1()));
+                        },
+                        child:Text("Sign In",
+                          style: TextStyle(fontSize: 22),)
+                    )
+                ),
+              ],
+            ),
+          )
+      ),
     );
   }
 }
